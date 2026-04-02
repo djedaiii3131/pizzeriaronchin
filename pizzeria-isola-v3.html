@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pizzéria Isola — Ronchin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --r:#D42B0E;--r2:#FF3D1A;--rdk:#A01F08;
+  --g:#D4A853;--g2:#F0C97A;
+  --dk:#0A0806;--dk2:#140E09;--dk3:#1E1208;
+  --cr:#F5EDE0;--cm:#9E8472;
+  --wh:#FFFFFF;
+}
+html{scroll-behavior:smooth}
+body{background:var(--dk);color:var(--cr);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none}
+
+/* CURSEUR CUSTOM */
+#cur{position:fixed;width:10px;height:10px;background:var(--r);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s}
+#cur2{position:fixed;width:36px;height:36px;border:1px solid rgba(212,168,83,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .12s ease-out}
+body:hover #cur{opacity:1}
+
+/* CANVAS */
+#fc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.12}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:990;display:flex;align-items:center;justify-content:space-between;padding:24px 5%;mix-blend-mode:normal;transition:all .4s}
+nav.s{background:rgba(10,8,6,.96);backdrop-filter:blur(16px);padding:16px 5%;border-bottom:1px solid rgba(255,255,255,.05)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:var(--wh);text-decoration:none;display:flex;align-items:center;gap:0;line-height:1}
+.logo-r{color:var(--r)}
+.nl{display:flex;gap:36px;list-style:none;align-items:center}
+.nl a{color:rgba(245,237,224,.5);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;transition:color .25s;font-weight:300}
+.nl a:hover{color:var(--wh)}
+.ncta{background:var(--r)!important;color:var(--wh)!important;padding:9px 22px;border-radius:1px;font-size:11px!important;font-weight:500!important;letter-spacing:2px;transition:background .25s!important}
+.ncta:hover{background:var(--rdk)!important}
+
+/* ══ HERO ══ */
+#hero{position:relative;height:100vh;display:grid;place-items:center;overflow:hidden;z-index:1}
+.hero-noise{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px}
+.hero-glow{position:absolute;bottom:-10%;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(ellipse,rgba(212,42,14,.18) 0%,transparent 70%);pointer-events:none}
+.hero-inner{text-align:center;position:relative;z-index:2;padding:0 4%;width:100%}
+.hero-tag{display:inline-flex;align-items:center;gap:10px;margin-bottom:2.5rem;opacity:0;animation:fu .7s .2s forwards}
+.hero-tag span{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--g);font-weight:300}
+.hero-tag::before,.hero-tag::after{content:'';flex:1;width:40px;height:1px;background:linear-gradient(to right,transparent,rgba(212,168,83,.4))}
+.hero-tag::after{background:linear-gradient(to left,transparent,rgba(212,168,83,.4))}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,16vw,18rem);line-height:.9;letter-spacing:-1px;color:var(--wh);opacity:0;animation:fu .9s .35s forwards;user-select:none}
+.hero-title .red{color:var(--r);display:block}
+.hero-title .outline{-webkit-text-stroke:1px rgba(245,237,224,.25);color:transparent;display:block;font-size:clamp(2.5rem,7vw,8rem);letter-spacing:8px;margin-top:.2em}
+.hero-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(1.1rem,2vw,1.5rem);font-style:italic;font-weight:300;color:var(--cm);margin:2rem auto 3rem;max-width:480px;line-height:1.7;opacity:0;animation:fu .7s .6s forwards}
+.hero-sub em{color:var(--g2);font-style:normal}
+.hero-actions{display:flex;gap:14px;justify-content:center;opacity:0;animation:fu .7s .8s forwards;flex-wrap:wrap}
+.btn-main{background:var(--r);color:var(--wh);padding:16px 38px;border:none;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;text-decoration:none;display:inline-block;transition:all .25s;border-radius:1px}
+.btn-main:hover{background:var(--rdk);transform:translateY(-2px)}
+.btn-sec{background:transparent;color:var(--cr);padding:16px 38px;border:1px solid rgba(245,237,224,.15);font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;text-decoration:none;display:inline-block;transition:all .25s;border-radius:1px}
+.btn-sec:hover{border-color:var(--g);color:var(--g)}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fu .7s 1.1s forwards}
+.hero-scroll span{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--cm)}
+.sa{width:1px;height:44px;overflow:hidden;position:relative}
+.sa::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(to bottom,var(--g),transparent);animation:scroll-line 2s 1.2s infinite}
+@keyframes scroll-line{0%{transform:translateY(-100%)}100%{transform:translateY(200%)}}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ BANDE TICKER ══ */
+.ticker-wrap{background:var(--r);padding:12px 0;overflow:hidden;z-index:2;position:relative}
+.ticker{display:flex;gap:0;white-space:nowrap;animation:tick 22s linear infinite}
+.ticker-item{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;color:var(--wh);padding:0 36px;display:flex;align-items:center;gap:36px}
+.ticker-item::after{content:'✦';opacity:.6;font-size:10px}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ══ INFO STRIP ══ */
+.istrip{position:relative;z-index:1;padding:20px 5%;display:flex;justify-content:center;gap:48px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.05)}
+.ii{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--cm)}
+.ii svg{flex-shrink:0;opacity:.7}
+.ii strong{color:var(--cr);font-weight:400}
+
+/* ══ SECTIONS ══ */
+section{position:relative;z-index:1}
+.eyebrow{font-size:10px;letter-spacing:4.5px;text-transform:uppercase;color:var(--g);margin-bottom:.8rem}
+.sec-t{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,5vw,5.5rem);letter-spacing:1px;line-height:1;color:var(--wh);margin-bottom:.5rem}
+.sec-t em{color:var(--r);font-style:normal}
+.ital{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,2.5vw,2rem);font-style:italic;font-weight:300;color:var(--cm);display:block;margin-top:4px}
+.gline{width:32px;height:1px;background:var(--g);opacity:.6;margin:1.2rem 0}
+
+/* ══ SPLIT MANIFESTE ══ */
+#mani{display:grid;grid-template-columns:1fr 1fr;min-height:70vh}
+.mani-visual{background:var(--dk2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:500px}
+.mani-bg-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,18vw,22rem);color:rgba(255,255,255,.022);line-height:.85;text-align:center;letter-spacing:-2px;user-select:none;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.pizza-float{font-size:clamp(80px,12vw,160px);z-index:2;position:relative;animation:float 7s ease-in-out infinite;filter:drop-shadow(0 0 60px rgba(212,42,14,.35))}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(3deg)}}
+.mani-tags{position:absolute;z-index:3}
+.mt1{top:12%;left:8%}.mt2{bottom:18%;right:8%}.mt3{bottom:12%;left:12%}
+.mtag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--g);background:rgba(10,8,6,.9);border:1px solid rgba(212,168,83,.2);padding:5px 12px;border-radius:1px;white-space:nowrap}
+.mani-text{padding:60px 6%;display:flex;flex-direction:column;justify-content:center;background:var(--dk)}
+.mani-text p{font-size:15px;color:var(--cm);line-height:1.9;margin-bottom:1.4rem;font-weight:300}
+.mani-text p strong{color:var(--cr);font-weight:400}
+
+/* ══ PIZZAS ══ */
+#pizzas{padding:90px 0}
+.pz-head{text-align:center;padding:0 5%;margin-bottom:50px}
+.pz-head .gline{margin:1rem auto}
+.ptabs{display:flex;justify-content:center;margin-bottom:44px;gap:0}
+.ptabs-inner{display:inline-flex;border:1px solid rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.ptb{padding:11px 24px;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--cm);background:transparent;border:none;font-family:'DM Sans',sans-serif;transition:all .25s;font-weight:400}
+.ptb.on{background:var(--r);color:var(--wh)}
+.ptb:not(.on):hover{color:var(--wh);background:rgba(255,255,255,.04)}
+.co{position:relative;padding:0 5%}
+.cfl{position:absolute;top:0;bottom:0;left:0;width:80px;z-index:10;pointer-events:none;background:linear-gradient(to right,var(--dk),transparent)}
+.cfr{position:absolute;top:0;bottom:0;right:0;width:80px;z-index:10;pointer-events:none;background:linear-gradient(to left,var(--dk),transparent)}
+.cscroll{display:flex;gap:16px;overflow-x:auto;padding:6px 40px 28px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.cscroll::-webkit-scrollbar{display:none}
+.pc{flex:0 0 210px;scroll-snap-align:start;background:var(--dk2);border:1px solid rgba(255,255,255,.055);border-radius:2px;overflow:hidden;transition:all .3s;position:relative;display:flex;flex-direction:column}
+.pc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--r);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.pc:hover{border-color:rgba(255,255,255,.14);transform:translateY(-4px)}
+.pc:hover::after{transform:scaleX(1)}
+.pctop{height:100px;display:flex;align-items:center;justify-content:center;background:var(--dk3);border-bottom:1px solid rgba(255,255,255,.04);font-size:48px;position:relative}
+.pctop::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 100%,rgba(212,42,14,.12),transparent 60%)}
+.pce{z-index:1;filter:drop-shadow(0 0 16px rgba(212,42,14,.3))}
+.pcb{padding:14px 14px 10px;flex:1}
+.pname{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--wh);margin-bottom:5px}
+.ping{font-size:11px;color:var(--cm);line-height:1.55;min-height:36px}
+.pcf{padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+.pp{display:flex;gap:10px}
+.ppi{display:flex;flex-direction:column;align-items:center}
+.ppl{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--cm);margin-bottom:1px}
+.ppv{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--g);letter-spacing:.5px}
+.bord{background:var(--r);color:var(--wh);border:none;padding:7px 13px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;text-decoration:none;display:inline-block;transition:background .25s;white-space:nowrap;border-radius:1px}
+.bord:hover{background:var(--rdk)}
+.cnav{display:flex;justify-content:center;gap:8px;margin-top:6px}
+.cnb{width:42px;height:42px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--cm);font-size:14px;transition:all .25s;user-select:none}
+.cnb:hover{background:var(--r);border-color:var(--r);color:var(--wh)}
+
+/* ══ SERVICES ══ */
+#serv{padding:0 0 80px}
+.serv-grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.06);border-left:1px solid rgba(255,255,255,.06)}
+.scard{padding:36px 28px;border-right:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);transition:background .3s}
+.scard:hover{background:var(--dk2)}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:56px;color:rgba(212,42,14,.15);line-height:1;margin-bottom:12px;letter-spacing:-1px}
+.scard h3{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--wh);margin-bottom:8px}
+.scard p{font-size:12.5px;color:var(--cm);line-height:1.7;font-weight:300}
+.shigh{color:var(--g)!important;font-weight:400!important}
+
+/* ══ FIDELITÉ ══ */
+#fid{padding:70px 5%;display:grid;grid-template-columns:1fr 2fr;gap:60px;align-items:center;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+.fid-left{text-align:center}
+.fid-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(6rem,12vw,10rem);line-height:.9;-webkit-text-stroke:1px rgba(212,168,83,.5);color:transparent;letter-spacing:-2px}
+.fid-lbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--g);margin-top:8px}
+.fid-right p{font-size:15px;color:var(--cm);line-height:1.9;font-weight:300;max-width:500px}
+.fid-right p strong{color:var(--cr);font-weight:400}
+
+/* ══ CONTACT ══ */
+#contact{padding:80px 5%}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px;margin-top:50px}
+.cb h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--r);margin-bottom:16px}
+.cl{display:flex;flex-direction:column;margin-bottom:10px}
+.cl span{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--cm);margin-bottom:2px}
+.cl a,.cl strong{font-size:13.5px;color:var(--cr);text-decoration:none;font-weight:300;transition:color .2s}
+.cl a:hover{color:var(--g)}
+.hrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px}
+.hrow:last-child{border:none}
+.hday{color:var(--cm);font-weight:300}
+.htime{color:var(--cr);font-weight:300}
+.hclosed{color:var(--r)}
+.ccta{text-align:center;margin-top:60px;padding-top:50px;border-top:1px solid rgba(255,255,255,.05)}
+.ccta p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.3rem;color:var(--cm);margin-bottom:1.8rem;font-weight:300}
+
+/* ══ FOOTER ══ */
+footer{background:var(--dk2);border-top:1px solid rgba(255,255,255,.05);padding:28px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.flogo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:var(--wh)}
+.flogo span{color:var(--r)}
+.fcopy{font-size:11px;color:rgba(158,132,114,.5);letter-spacing:.3px}
+.fsoc a{color:var(--cm);font-size:10px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;border:1px solid rgba(255,255,255,.08);padding:7px 14px;border-radius:1px;transition:all .2s}
+.fsoc a:hover{color:var(--g);border-color:rgba(212,168,83,.3)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  #mani{grid-template-columns:1fr}
+  .mani-visual{min-height:300px}
+  .serv-grid{grid-template-columns:1fr 1fr}
+  #fid{grid-template-columns:1fr;gap:30px}
+  .nl{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur2"></div>
+<canvas id="fc"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="logo" href="#hero">IS<span class="logo-r">OL</span>A</a>
+  <ul class="nl">
+    <li><a href="#pizzas">Pizzas</a></li>
+    <li><a href="#mani">L'histoire</a></li>
+    <li><a href="#serv">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://www.clicknresto-fr.com/ordering/restaurant/menu?restaurant_uid=efd375d8-b17d-460a-a19d-d25f89f56e5b" target="_blank" class="ncta">Commander</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-tag"><span>Pizzéria Artisanale · Ronchin · Depuis 2022</span></div>
+    <h1 class="hero-title">
+      ISOLA
+      <span class="red">PIZZA</span>
+      <span class="outline">RONCHIN</span>
+    </h1>
+    <p class="hero-sub">La pâte qu'on pétrit chaque matin.<br>Les ingrédients qu'on choisit <em>avec amour</em>.<br>La pizza dont vous vous souviendrez.</p>
+    <div class="hero-actions">
+      <a href="https://www.clicknresto-fr.com/ordering/restaurant/menu?restaurant_uid=efd375d8-b17d-460a-a19d-d25f89f56e5b" target="_blank" class="btn-main">Commander en ligne</a>
+      <a href="#pizzas" class="btn-sec">Voir la carte</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="sa"></div></div>
+</section>
+
+
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">Pâte Artisanale</span>
+    <span class="ticker-item">Ingrédients Frais</span>
+    <span class="ticker-item">Sur Place</span>
+    <span class="ticker-item">À Emporter</span>
+    <span class="ticker-item">Livraison</span>
+    <span class="ticker-item">Programme Fidélité</span>
+    <span class="ticker-item">Pâte Artisanale</span>
+    <span class="ticker-item">Ingrédients Frais</span>
+    <span class="ticker-item">Sur Place</span>
+    <span class="ticker-item">À Emporter</span>
+    <span class="ticker-item">Livraison</span>
+    <span class="ticker-item">Programme Fidélité</span>
+  </div>
+</div>
+<section id="mani">
+  <div class="mani-visual">
+    <div class="mani-bg-text">ISOLA</div>
+    <div class="pizza-float">🍕</div>
+    <div class="mani-tags">
+      <div class="mtag mt1">Pâte artisanale</div>
+      <div class="mtag mt2">Cuisson parfaite</div>
+      <div class="mtag mt3">Ingrédients frais</div>
+    </div>
+  </div>
+  <div class="mani-text">
+    <div class="eyebrow">Notre philosophie</div>
+    <h2 class="sec-t">FAIT AVEC<br><em>CŒUR</em></h2>
+    <span class="ital">mangé avec plaisir</span>
+    <div class="gline" style="margin-left:0"></div>
+    <p>Chez Isola, on n'a qu'une seule obsession : <strong>que vous mangiez la meilleure pizza de votre vie.</strong> Chaque matin, on prépare la pâte à la main, on la laisse reposer, on la travaille avec patience.</p>
+    <p>Des ingrédients choisis, des recettes vivantes, nourries des saveurs du Nord et de l'âme italienne. Deux adresses — <strong>Ronchin</strong> &amp; <strong>Mons-en-Baroeul</strong> — une seule exigence.</p>
+    <a href="https://www.clicknresto-fr.com/ordering/restaurant/menu?restaurant_uid=efd375d8-b17d-460a-a19d-d25f89f56e5b" target="_blank" class="btn-main" style="font-size:10.5px;padding:13px 28px;margin-top:.5rem;display:inline-block">Commander</a>
+  </div>
+</section>
+
+<!-- PIZZAS -->
+<section id="pizzas">
+  <div class="pz-head">
+    <div class="eyebrow">La carte</div>
+    <h2 class="sec-t">NOS <em>PIZZAS</em></h2>
+    <div class="gline"></div>
+    <p style="color:var(--cm);font-size:13px;font-weight:300">21 cm &amp; 26 cm · Pâte artisanale maison sur toutes les pizzas</p>
+  </div>
+  <div class="ptabs">
+    <div class="ptabs-inner">
+      <button class="ptb on" onclick="sw('tomate',this)">Base Tomate</button>
+      <button class="ptb" onclick="sw('creme',this)">Base Crème</button>
+      <button class="ptb" onclick="sw('plats',this)">Plats Maison</button>
+      <button class="ptb" onclick="sw('autres',this)">Desserts & Boissons</button>
+    </div>
+  </div>
+  <div class="co">
+    <div class="cfl"></div>
+    <div class="cscroll" id="track"></div>
+    <div class="cfr"></div>
+  </div>
+  <div class="cnav">
+    <div class="cnb" onclick="sc(-1)">&#8592;</div>
+    <div class="cnb" onclick="sc(1)">&#8594;</div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="serv">
+  <div style="padding:70px 5% 40px;text-align:center">
+    <div class="eyebrow">Comment profiter</div>
+    <h2 class="sec-t">NOS <em>SERVICES</em></h2>
+  </div>
+  <div class="serv-grid">
+    <div class="scard">
+      <div class="snum">01</div>
+      <h3>Livraison</h3>
+      <p>À domicile dès <span class="shigh">15 €</span> de commande. Supplément de 2 € appliqué.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">02</div>
+      <h3>À Emporter</h3>
+      <p>Commandez en ligne et venez récupérer vos plats. Rapide, sans supplément.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">03</div>
+      <h3>Sur Place</h3>
+      <p>Profitez de notre salle. Réservation conseillée le soir et le week-end.</p>
+    </div>
+    <div class="scard">
+      <div class="snum">04</div>
+      <h3>Fidélité</h3>
+      <p><span class="shigh">16 points Isola</span> = 1 pizza offerte de votre choix. Valable à emporter.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FIDÉLITE -->
+<section id="fid">
+  <div class="fid-left">
+    <div class="fid-num">16</div>
+    <div class="fid-lbl">Points Isola</div>
+  </div>
+  <div class="fid-right">
+    <div class="eyebrow">Programme fidélité</div>
+    <h2 class="sec-t">CHAQUE VISITE<br><em>COMPTE</em></h2>
+    <div class="gline" style="margin-left:0"></div>
+    <p>Cumulez des points à chaque commande et échangez-les contre <strong>une pizza de votre choix</strong> offerte. Simple, direct, généreux.</p>
+    <p style="font-size:12px;margin-top:.5rem">* Offre valable uniquement à emporter.</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="eyebrow">Nous trouver</div>
+  <h2 class="sec-t">HORAIRES & <em>CONTACT</em></h2>
+  <div class="gline" style="margin-left:0"></div>
+  <div class="cgrid">
+    <div class="cb">
+      <h3>Isola Ronchin</h3>
+      <div class="cl"><span>Adresse</span><strong>125, avenue de Jean-Jaurès — 59790 Ronchin</strong></div>
+      <div class="cl"><span>Téléphone</span><a href="tel:0698385211">06.98.38.52.11</a></div>
+      <div class="cl"><span>Email</span><a href="mailto:pizzeriaisola@gmail.com">pizzeriaisola@gmail.com</a></div>
+      <div class="cl"><span>Facebook</span><a href="https://www.facebook.com/Pizzeria-Isola-Ronchin-101403091577340" target="_blank">Pizzeria Isola Ronchin</a></div>
+    </div>
+    <div class="cb">
+      <h3>Isola Mons</h3>
+      <div class="cl"><span>Adresse</span><strong>126, rue du Général de Gaulle — 59370 Mons-en-Baroeul</strong></div>
+      <div class="cl"><span>Téléphone</span><a href="tel:0320563214">03.20.56.32.14</a></div>
+    </div>
+    <div class="cb">
+      <h3>Horaires</h3>
+      <div class="hrow"><span class="hday">Lundi</span><span class="hclosed">Fermé</span></div>
+      <div class="hrow"><span class="hday">Mardi – Jeudi</span><span class="htime">11h–14h / 18h–21h</span></div>
+      <div class="hrow"><span class="hday">Vendredi – Samedi</span><span class="htime">11h–14h / 18h–21h30</span></div>
+      <div class="hrow"><span class="hday">Dimanche</span><span class="htime">18h30–21h30</span></div>
+    </div>
+  </div>
+  <div class="ccta">
+    <p>Prêt à vous régaler ?</p>
+    <a href="https://www.clicknresto-fr.com/ordering/restaurant/menu?restaurant_uid=efd375d8-b17d-460a-a19d-d25f89f56e5b" target="_blank" class="btn-main" style="font-size:11px;padding:16px 44px;letter-spacing:3px">Commander maintenant</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo">IS<span>OL</span>A</div>
+  <div class="fcopy">© 2025 Pizzéria Isola Ronchin · Tous droits réservés</div>
+  <div class="fsoc"><a href="https://www.facebook.com/Pizzeria-Isola-Ronchin-101403091577340" target="_blank">Facebook</a></div>
+</footer>
+
+<script>
+const ORDER='https://www.clicknresto-fr.com/ordering/restaurant/menu?restaurant_uid=efd375d8-b17d-460a-a19d-d25f89f56e5b';
+const M={
+  tomate:[
+    {n:'Isola',i:'Oignons, thon, poivrons, olives, champignons, mozzarella',a:'8.00',b:'9.00'},
+    {n:'Végétarienne',i:'Oignons, poivrons, olives, champignons, mozzarella',a:'8.00',b:'9.00'},
+    {n:'Reine',i:'Champignons, jambon, mozzarella',a:'7.50',b:'9.00'},
+    {n:'Marquoise',i:'Jambon, champignons, oignons, olives, emmental',a:'8.00',b:'9.00'},
+    {n:'Sicilienne',i:'Poivrons, chorizo, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Calabrese',i:'Thon, câpres, anchois, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Fruits de mer',i:'Assortiment de fruits de mer, emmental',a:'8.00',b:'9.00'},
+    {n:'Oignon',i:'Oignons, emmental',a:'6.00',b:'7.00'},
+    {n:'Jambon',i:'Jambon, mozzarella',a:'6.50',b:'7.50'},
+    {n:'Margherita',i:'Mozzarella',a:'5.50',b:'6.50'},
+    {n:'Napolitaine',i:'Olives, câpres, anchois, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Merguez',i:'Merguez, oignons, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Gorgonzola',i:'Gorgonzola, emmental',a:'7.50',b:'8.50'},
+    {n:'Capri',i:'Chorizo, oignons, œuf, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Hellemoise',i:'Jambon, champignons, oignons, œuf, emmental',a:'8.00',b:'9.00'},
+    {n:'Thon',i:'Thon, emmental',a:'7.00',b:'8.00'},
+    {n:'Saint Aygulf',i:'Jambon, chorizo, merguez, œuf, emmental',a:'8.50',b:'9.50'},
+    {n:'Bolognaise',i:'Sauce bolognaise, mozzarella',a:'7.50',b:'8.50'},
+    {n:'4 Fromages',i:'Emmental, gorgonzola, mozzarella, chèvre',a:'8.50',b:'9.50'},
+    {n:'Del Maestro',i:'Chorizo, jambon, champignons, mozzarella, chèvre, poivrons',a:'8.50',b:'9.50'},
+    {n:'Zio',i:'Lardons, oignons, mozzarella, œuf, olives, poivrons',a:'8.50',b:'9.50'},
+    {n:'Loossoise',i:'Œuf, oignons, gorgonzola, champignons, emmental',a:'8.00',b:'9.00'},
+    {n:'Lommoise',i:'Bolognaise, emmental, œuf, oignons, merguez',a:'8.50',b:'9.50'},
+    {n:'Maroilles',i:'Emmental, maroilles',a:'7.50',b:'8.50'},
+    {n:'Chèvre',i:'Emmental, chèvre',a:'7.50',b:'8.50'},
+    {n:'Ronchinoise',i:'Chorizo, jambon, champignons, oignons, poivrons, gorgonzola, parmezan',a:'8.50',b:'9.50'},
+    {n:'Annappoise',i:'Jambon, chorizo, parmezan, gorgonzola, œuf, merguez',a:'7.80',b:'9.00'},
+    {n:'Hawaï',i:'Emmental, jambon, ananas, coulis de crème fraîche',a:'8.00',b:'9.00'},
+    {n:'Européenne',i:'Thon, chorizo, jambon, artichaut, oignons, poivrons, mozzarella',a:'8.50',b:'9.50'},
+    {n:'Villeneuvoise',i:'Chorizo, merguez, 2 œufs, emmental, oignons',a:'8.50',b:'9.50'},
+    {n:'Tourquenoise',i:'Oignons, chorizo, thon, gorgonzola, emmental',a:'8.50',b:'9.50'},
+    {n:'Pino',i:'Thon, jambon, chorizo, artichaut, champignons, mozzarella',a:'8.00',b:'9.00'},
+    {n:'Végétalienne',i:'Oignons, artichaut, pommes de terre, poivrons, olives, champignons',a:'6.90',b:'8.10'},
+    {n:'Saumon',i:'Saumon, emmental, coulis de crème fraîche',a:'9.00',b:'10.00'},
+    {n:'Saint-Jacques',i:'Saint-Jacques, emmental, coulis de crème fraîche',a:'9.00',b:'10.00'},
+    {n:'Calzone',i:'Champignons, jambon, oignons, mozzarella, jaune d\'œuf',a:'9.50',b:''},
+    {n:'Del Estate',i:'Jambon cru, mozzarella, roquette, balsamique, parmesan, tomates cerises',a:'12.50',b:''},
+    {n:'Pépéroni',i:'Pépéronis, gruyère, oignon',a:'7.50',b:'8.50'},
+  ],
+  creme:[
+    {n:'Monsoise',i:'Chorizo, jambon, merguez, gorgonzola, olives, poivrons, parmezan',a:'8.50',b:'9.50'},
+    {n:'Savoiardi',i:'Emmental, oignons, pommes de terre, lardons, reblochon',a:'8.50',b:'9.50'},
+    {n:'Toscana',i:'Jambon, champignons, parmezan',a:'7.50',b:'8.50'},
+    {n:'Lilloise',i:'Vieux Lille, lardons, emmental, œuf, oignons',a:'8.50',b:'9.50'},
+    {n:'Carbonara',i:'Lardons, mozzarella',a:'7.50',b:'8.50'},
+    {n:'Wattignisienne',i:'Champignons, chorizo, emmental, oignons, gorgonzola, œuf',a:'8.50',b:'9.50'},
+    {n:'Armentieroise',i:'Jambon, champignons, emmental, oignons, chèvre, œuf',a:'8.50',b:'9.50'},
+    {n:'Andresienne',i:'Emmental, gorgonzola, chèvre, lardons, œuf',a:'8.50',b:'9.50'},
+    {n:'Romana',i:'Poulet, chorizo, pommes de terre, gorgonzola, mozzarella, poivrons',a:'8.50',b:'9.50'},
+  ],
+  plats:[
+    {n:'Chorizo',i:'À la pièce',a:'5.80',b:''},
+    {n:'Pâtes 3 Fromages',i:'Crème fraîche, gorgonzola, formaggio, mozzarella',a:'9.00',b:''},
+    {n:'Tagliatelles Saumon',i:'Sauce napolitaine, crème fraîche, saumon fumé',a:'9.50',b:''},
+    {n:'Spaghettis Carbonara',i:'Crème fraîche, lardons fumés, mozzarella, formaggio',a:'9.00',b:''},
+    {n:'Spaghettis Bolognaise',i:'Sauce tomate, viande hachée pur bœuf',a:'8.50',b:''},
+    {n:'Macaronis',i:'Sauce napolitaine, crème fraîche, jambon, champignons',a:'9.00',b:''},
+    {n:'Lasagnes',i:'Sauce tomate, œuf, viande hachée, jambon, mozzarella',a:'9.00',b:''},
+  ],
+  autres:[
+    {n:'Tiramisu Spéculos',i:'Dessert maison',a:'4.50',b:''},
+    {n:'Tiramisu Nutella',i:'Dessert maison',a:'4.50',b:''},
+    {n:'Coca-Cola',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'Coca Zéro',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'Fanta Citron',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'Fanta Orange',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'Ice Tea',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'Oasis',i:'Canette 33 cl',a:'2.00',b:''},
+    {n:'San Pellegrino',i:'Bouteille 50 cl',a:'2.50',b:''},
+    {n:'Heineken',i:'Canette 25 cl',a:'2.50',b:''},
+    {n:'Leff',i:'Canette 25 cl',a:'3.00',b:''},
+    {n:'Lambrusco Rouge',i:'Bouteille 75 cl',a:'9.50',b:''},
+    {n:'Bardolino Rosé',i:'Bouteille 75 cl',a:'9.50',b:''},
+  ]
+};
+const EM={tomate:'🍕',creme:'🤍',plats:'🍝',autres:'🍮'};
+
+function render(tab){
+  const t=document.getElementById('track');
+  const e=EM[tab];
+  t.innerHTML=M[tab].map(p=>{
+    const h=p.b&&p.b!='';
+    return '<div class="pc"><div class="pctop"><span class="pce">'+e+'</span></div><div class="pcb"><div class="pname">'+p.n+'</div><div class="ping">'+p.i+'</div></div><div class="pcf"><div class="pp"><div class="ppi"><span class="ppl">21cm</span><span class="ppv">'+p.a+'€</span></div>'+(h?'<div class="ppi"><span class="ppl">26cm</span><span class="ppv">'+p.b+'€</span></div>':'')+'</div><a href="'+ORDER+'" target="_blank" class="bord">Commander</a></div></div>';
+  }).join('');
+  t.scrollLeft=0;
+}
+function sw(tab,el){
+  document.querySelectorAll('.ptb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');render(tab);
+}
+function sc(d){document.getElementById('track').scrollBy({left:d*240,behavior:'smooth'});}
+render('tomate');
+
+// NAV scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('s',window.scrollY>60);
+});
+
+// Smooth links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+
+// Curseur custom
+const cur=document.getElementById('cur');
+const cur2=document.getElementById('cur2');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';
+  setTimeout(()=>{cur2.style.left=e.clientX+'px';cur2.style.top=e.clientY+'px';},60);
+});
+document.querySelectorAll('a,button,.cnb,.ptb').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';cur2.style.width='52px';cur2.style.height='52px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';cur2.style.width='36px';cur2.style.height='36px';});
+});
+
+// Canvas flammes
+const cv=document.getElementById('fc');
+const cx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=document.body.scrollHeight;}
+class Pt{
+  constructor(){this.reset();this.y=Math.random()*H;this.life=Math.random();}
+  reset(){
+    this.x=Math.random()*W;this.y=H+40;
+    this.vx=(Math.random()-.5)*.45;this.vy=-(0.9+Math.random()*2);
+    this.life=1;this.decay=.003+Math.random()*.007;this.r=1.5+Math.random()*3.5;
+  }
+  update(){
+    this.x+=this.vx+Math.sin(Date.now()*.0008+this.x*.008)*.22;
+    this.y+=this.vy;this.life-=this.decay;
+    if(this.life<=0)this.reset();
+  }
+  draw(){
+    const g=cx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*2.5);
+    g.addColorStop(0,`rgba(255,${Math.floor(60+this.life*110)},10,${this.life*.6})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    cx.beginPath();cx.arc(this.x,this.y,this.r*2.5,0,Math.PI*2);
+    cx.fillStyle=g;cx.fill();
+  }
+}
+for(let i=0;i<140;i++) pts.push(new Pt());
+function loop(){cx.clearRect(0,0,W,H);pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(loop);}
+resize();loop();
+window.addEventListener('resize',resize);
+</script>
+</body>
+</html>
